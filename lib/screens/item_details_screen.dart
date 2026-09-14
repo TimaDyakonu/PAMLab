@@ -7,14 +7,15 @@ import '../widgets/status_badge.dart';
 import '../widgets/user_avatar.dart';
 
 class ItemDetailsScreen extends StatelessWidget {
-  final Item item;
-
-  const ItemDetailsScreen({super.key, required this.item});
+  const ItemDetailsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
+    // на L2 экран показывает один зашитый mock-объект;
+    // передача выбранной вещи через маршрут — материал L3
+    final item = mockItems.first;
     final seller = userById(item.ownerId);
 
     return Scaffold(
@@ -120,9 +121,7 @@ class ItemDetailsScreen extends StatelessWidget {
               Expanded(
                 flex: 2,
                 child: FilledButton(
-                  // забронировать можно только доступную вещь
-                  onPressed:
-                      item.status == ItemStatus.available ? () {} : null,
+                  onPressed: () {}, // на L2 кнопки без эффекта
                   child: const Text('Забронировать'),
                 ),
               ),

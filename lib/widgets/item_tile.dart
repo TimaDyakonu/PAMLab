@@ -15,14 +15,11 @@ class ItemTile extends StatelessWidget {
   /// Дополнительная строка под названием (продавец, дата брони…).
   final String? footer;
 
-  final VoidCallback? onTap;
-
   const ItemTile({
     super.key,
     required this.item,
     this.badge,
     this.footer,
-    this.onTap,
   });
 
   @override
@@ -32,62 +29,58 @@ class ItemTile extends StatelessWidget {
 
     return Card(
       margin: EdgeInsets.zero,
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: SizedBox(
-                  width: 72,
-                  height: 72,
-                  child: ItemPhoto(category: item.category, iconSize: 32),
-                ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: SizedBox(
+                width: 72,
+                height: 72,
+                child: ItemPhoto(category: item.category, iconSize: 32),
               ),
-              const SizedBox(width: 12),
-              // Expanded: реальный предел ширины — длинное название
-              // переносится, а не вызывает переполнение
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: text.titleSmall,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      footer ?? '${item.size} · ${item.condition}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: text.bodySmall
-                          ?.copyWith(color: scheme.onSurfaceVariant),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        badge ?? StatusBadge.item(item.status),
-                        Text(
-                          item.priceLabel,
-                          style: text.titleMedium?.copyWith(
-                            color: scheme.primary,
-                            fontWeight: FontWeight.w700,
-                          ),
+            ),
+            const SizedBox(width: 12),
+            // Expanded: реальный предел ширины — длинное название
+            // переносится, а не вызывает переполнение
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: text.titleSmall,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    footer ?? '${item.size} · ${item.condition}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style:
+                        text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      badge ?? StatusBadge.item(item.status),
+                      Text(
+                        item.priceLabel,
+                        style: text.titleMedium?.copyWith(
+                          color: scheme.primary,
+                          fontWeight: FontWeight.w700,
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

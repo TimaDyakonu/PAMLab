@@ -2,6 +2,7 @@
 // На L2 строго статический: без Form, без validator, без проверки полей.
 // Валидация появится на L3, подключение к backend-у — на L5.
 import 'package:flutter/material.dart';
+import 'home_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -64,7 +65,12 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 FilledButton(
-                  onPressed: () {},
+                  // без проверки полей: только переход на стартовый экран,
+                  // чтобы не блокировать демонстрацию
+                  onPressed: () => Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const HomeScreen()),
+                  ),
                   style: FilledButton.styleFrom(
                     minimumSize: const Size.fromHeight(52),
                   ),

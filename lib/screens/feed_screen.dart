@@ -58,10 +58,11 @@ class FeedScreen extends StatelessWidget {
               ),
               itemBuilder: (context, index) => ItemCard(
                 item: items[index],
+                // временная навигация для демонстрации (Задание 6)
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => ItemDetailsScreen(item: items[index]),
+                    builder: (_) => const ItemDetailsScreen(),
                   ),
                 ),
               ),
