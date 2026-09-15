@@ -119,7 +119,6 @@ class ItemDetailsScreen extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Expanded(
-                flex: 2,
                 child: FilledButton(
                   onPressed: () {}, // на L2 кнопки без эффекта
                   child: const Text('Забронировать'),

@@ -4,9 +4,10 @@ import 'screens/login_screen.dart';
 
 void main() => runApp(const MyApp());
 
-// Семя палитры — терракотовый: цвет ткани, винтажа и «тёплого» секонд-хенда.
+// Семя палитры — приглушённый лесной зелёный: цвет осознанного
+// потребления и вторичного использования вещей (эко-тематика секонд-хенда).
 // ColorScheme.fromSeed выводит из него все роли (primary, surface, …).
-const _seedColor = Color(0xFFC0673F);
+const _seedColor = Color(0xFF4A7C59);
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
