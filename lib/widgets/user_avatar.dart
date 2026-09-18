@@ -8,7 +8,7 @@ class UserAvatar extends StatelessWidget {
 
   const UserAvatar({super.key, required this.user, this.radius = 20});
 
-  /// «Анна Чобану» → «АЧ».
+  /// «Мария Попеску» → «МП», «Admin» → «A».
   String get _initials =>
       user.name.split(' ').where((p) => p.isNotEmpty).map((p) => p[0]).take(2).join();
 

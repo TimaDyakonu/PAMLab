@@ -112,7 +112,7 @@ const mockConditions = [
 ];
 
 const mockUsers = [
-  User('u1', 'Анна Чобану', 'anna.ciobanu@mail.md'),
+  User('u1', 'Admin', 'admin@secondhand.md'),
   User('u2', 'Ион Русу', 'ion.rusu@gmail.com'),
   User('u3', 'Мария Попеску', 'maria.popescu@mail.md'),
   User('u4', 'Андрей Лунгу', 'andrei.lungu@gmail.com'),
@@ -120,7 +120,7 @@ const mockUsers = [
 ];
 
 /// Пользователь, «вошедший» в приложение.
-const currentUser = User('u1', 'Анна Чобану', 'anna.ciobanu@mail.md');
+const currentUser = User('u1', 'Admin', 'admin@secondhand.md');
 
 final mockItems = [
   // --- вещи других пользователей: лента объявлений ---
