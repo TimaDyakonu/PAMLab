@@ -1,6 +1,5 @@
-// screens/my_items_screen.dart — Мои объявления:
-// вещи, которые продаёт текущий пользователь.
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../data/mock_data.dart';
 import '../widgets/item_tile.dart';
 
@@ -21,6 +20,7 @@ class MyItemsScreen extends StatelessWidget {
           item: items[index],
           footer: '${items[index].size} · ${items[index].condition} · '
               'от ${formatDate(items[index].createdAt)}',
+          onTap: () => context.push('/my-items/${items[index].id}'),
         ),
       ),
     );

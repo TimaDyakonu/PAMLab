@@ -1,6 +1,5 @@
-// screens/my_purchases_screen.dart — Бронирование / мои покупки:
-// брони текущего пользователя со статусом каждой брони.
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../data/mock_data.dart';
 import '../widgets/item_tile.dart';
 import '../widgets/status_badge.dart';
@@ -22,10 +21,10 @@ class MyPurchasesScreen extends StatelessWidget {
           final seller = userById(item.ownerId);
           return ItemTile(
             item: item,
-            // вместо статуса вещи — статус брони
             badge: StatusBadge.reservation(reservation.status),
             footer: '${seller.name} · бронь от '
                 '${formatDate(reservation.createdAt)}',
+            onTap: () => context.push('/purchases/${item.id}'),
           );
         },
       ),

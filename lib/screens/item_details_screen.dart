@@ -1,5 +1,3 @@
-// screens/item_details_screen.dart — Карточка вещи:
-// фото, описание, цена, размер, состояние, продавец.
 import 'package:flutter/material.dart';
 import '../data/mock_data.dart';
 import '../widgets/item_photo.dart';
@@ -7,22 +5,29 @@ import '../widgets/status_badge.dart';
 import '../widgets/user_avatar.dart';
 
 class ItemDetailsScreen extends StatelessWidget {
-  const ItemDetailsScreen({super.key});
+  final String itemId;
+
+  const ItemDetailsScreen({super.key, required this.itemId});
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
-    // на L2 экран показывает один зашитый mock-объект;
-    // передача выбранной вещи через маршрут — материал L3
-    final item = mockItems.first;
+    final item = itemById(itemId);
     final seller = userById(item.ownerId);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Карточка вещи'),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.favorite_border)),
+          IconButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Добавлено в избранное')),
+              );
+            },
+            icon: const Icon(Icons.favorite_border),
+          ),
           IconButton(onPressed: () {}, icon: const Icon(Icons.share_outlined)),
         ],
       ),
@@ -112,7 +117,11 @@ class ItemDetailsScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Чат с продавцом откроется на L5')),
+                    );
+                  },
                   icon: const Icon(Icons.chat_bubble_outline),
                   label: const Text('Написать'),
                 ),
@@ -120,7 +129,11 @@ class ItemDetailsScreen extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: FilledButton(
-                  onPressed: () {}, // на L2 кнопки без эффекта
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Бронь отправлена: ${item.title}')),
+                    );
+                  },
                   child: const Text('Забронировать'),
                 ),
               ),

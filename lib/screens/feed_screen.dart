@@ -1,11 +1,7 @@
-// screens/feed_screen.dart — Лента объявлений:
-// поиск + фильтр по категории и размеру (на L2 — только визуально,
-// работать фильтры начнут на L4, когда появится состояние).
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../data/mock_data.dart';
 import '../widgets/item_card.dart';
-import 'item_details_screen.dart';
-import 'new_item_screen.dart';
 
 class FeedScreen extends StatelessWidget {
   const FeedScreen({super.key});
@@ -37,7 +33,6 @@ class FeedScreen extends StatelessWidget {
               elevation: const WidgetStatePropertyAll(0),
             ),
           ),
-          // ряды фильтров длиннее экрана → горизонтальный scroll
           _FilterRow(
             labels: ['Все', for (final c in mockCategories) c.name],
           ),
@@ -45,7 +40,6 @@ class FeedScreen extends StatelessWidget {
             labels: ['Любой размер', ...mockSizes],
           ),
           const SizedBox(height: 8),
-          // Expanded даёт сетке конечную высоту — остаток экрана
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
@@ -58,23 +52,14 @@ class FeedScreen extends StatelessWidget {
               ),
               itemBuilder: (context, index) => ItemCard(
                 item: items[index],
-                // временная навигация для демонстрации (Задание 6)
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ItemDetailsScreen(),
-                  ),
-                ),
+                onTap: () => context.push('/feed/${items[index].id}'),
               ),
             ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const NewItemScreen()),
-        ),
+        onPressed: () => context.push('/feed/new'),
         icon: const Icon(Icons.add),
         label: const Text('Продать'),
       ),
@@ -82,7 +67,6 @@ class FeedScreen extends StatelessWidget {
   }
 }
 
-/// Горизонтальный ряд фильтров; первый чип выбран (статично).
 class _FilterRow extends StatelessWidget {
   final List<String> labels;
 

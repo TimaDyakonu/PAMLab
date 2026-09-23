@@ -15,11 +15,14 @@ class ItemTile extends StatelessWidget {
   /// Дополнительная строка под названием (продавец, дата брони…).
   final String? footer;
 
+  final VoidCallback? onTap;
+
   const ItemTile({
     super.key,
     required this.item,
     this.badge,
     this.footer,
+    this.onTap,
   });
 
   @override
@@ -28,8 +31,11 @@ class ItemTile extends StatelessWidget {
     final text = Theme.of(context).textTheme;
 
     return Card(
+      clipBehavior: Clip.antiAlias,
       margin: EdgeInsets.zero,
-      child: Padding(
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,6 +88,7 @@ class ItemTile extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }
