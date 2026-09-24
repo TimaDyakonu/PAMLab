@@ -1,17 +1,39 @@
-// screens/profile_screen.dart — Профиль пользователя.
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../data/mock_data.dart';
 import '../widgets/user_avatar.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
+  Future<void> _logout(BuildContext context) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        title: const Text('Выйти из аккаунта?'),
+        content: const Text('Вы уверены, что хотите выйти?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx, false),
+            child: const Text('Отмена'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogCtx, true),
+            child: const Text('Да, выйти'),
+          ),
+        ],
+      ),
+    );
+    if (ok == true && context.mounted) {
+      context.go('/login');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
 
-    // статистика считается по mock-данным
     final onSale =
         myItems.where((i) => i.status != ItemStatus.sold).length;
     final sold = myItems.where((i) => i.status == ItemStatus.sold).length;
@@ -76,7 +98,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           OutlinedButton.icon(
-            onPressed: () {},
+            onPressed: () => _logout(context),
             icon: const Icon(Icons.logout),
             label: const Text('Выйти'),
           ),
@@ -86,7 +108,6 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-/// Плитка статистики: число + подпись. Повторяется трижды на экране.
 class _StatCard extends StatelessWidget {
   final int value;
   final String label;
