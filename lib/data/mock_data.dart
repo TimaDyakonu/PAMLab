@@ -363,3 +363,4 @@ List<Item> get feedItems =>
 /// Вещи, которые продаёт текущий пользователь.
 List<Item> get myItems =>
     mockItems.where((i) => i.ownerId == currentUser.id).toList();
+

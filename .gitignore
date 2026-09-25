@@ -1,3 +1,8 @@
+# Node (report generation)
+node_modules/
+package.json
+package-lock.json
+
 # Miscellaneous
 *.class
 *.log
