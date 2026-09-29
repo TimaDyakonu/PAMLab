@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../data/format_date.dart';
 import '../data/mock_data.dart';
 import '../models/favorites_model.dart';
 import '../widgets/item_photo.dart';
@@ -16,7 +17,7 @@ class ItemDetailsScreen extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
     final item = itemById(itemId);
-    final seller = userById(item.ownerId);
+    final seller = item.owner;
     // watch в build: сердечко перерисовывается, когда избранное меняется
     final isFavorite = context.watch<FavoritesModel>().isFavorite(item.id);
 

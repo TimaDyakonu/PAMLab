@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../data/catalog.dart';
 import '../data/mock_data.dart';
 import '../models/favorites_model.dart';
 import '../widgets/item_card.dart';
@@ -44,10 +45,10 @@ class FeedScreen extends StatelessWidget {
             ),
           ),
           _FilterRow(
-            labels: ['Все', for (final c in mockCategories) c.name],
+            labels: ['Все', for (final c in catalogCategories) c.name],
           ),
           _FilterRow(
-            labels: ['Любой размер', ...mockSizes],
+            labels: ['Любой размер', ...catalogSizes],
           ),
           const SizedBox(height: 8),
           Expanded(

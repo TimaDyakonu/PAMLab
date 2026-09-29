@@ -1,7 +1,8 @@
 // widgets/status_badge.dart — бейдж статуса вещи или брони.
 // Цвета берутся из ролей темы, а не зашиваются в код.
 import 'package:flutter/material.dart';
-import '../data/mock_data.dart';
+import '../data/item.dart';
+import '../data/reservation.dart';
 
 enum _Tone { primary, secondary, tertiary, neutral }
 

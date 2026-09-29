@@ -2,7 +2,7 @@
 // На L2 фото нет (imageUrl пуст): показываем иконку категории на
 // приглушённом фоне. Заполняет ту коробку, которую ему дал родитель.
 import 'package:flutter/material.dart';
-import '../data/mock_data.dart';
+import '../data/category.dart';
 
 class ItemPhoto extends StatelessWidget {
   final Category category;

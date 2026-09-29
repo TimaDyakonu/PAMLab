@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import '../data/mock_data.dart';
+import '../data/catalog.dart';
 
 class NewItemScreen extends StatefulWidget {
   const NewItemScreen({super.key});
@@ -128,7 +128,7 @@ class _NewItemScreenState extends State<NewItemScreen> {
                 border: OutlineInputBorder(),
               ),
               items: [
-                for (final c in mockCategories)
+                for (final c in catalogCategories)
                   DropdownMenuItem(value: c.id, child: Text(c.name)),
               ],
               onChanged: (v) => setState(() => _category = v),
@@ -146,7 +146,7 @@ class _NewItemScreenState extends State<NewItemScreen> {
                       border: OutlineInputBorder(),
                     ),
                     items: [
-                      for (final s in mockSizes)
+                      for (final s in catalogSizes)
                         DropdownMenuItem(value: s, child: Text(s)),
                     ],
                     onChanged: (v) => setState(() => _size = v),
@@ -163,7 +163,7 @@ class _NewItemScreenState extends State<NewItemScreen> {
                       border: OutlineInputBorder(),
                     ),
                     items: [
-                      for (final c in mockConditions)
+                      for (final c in catalogConditions)
                         DropdownMenuItem(value: c, child: Text(c)),
                     ],
                     onChanged: (v) => setState(() => _condition = v),

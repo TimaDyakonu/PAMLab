@@ -1,6 +1,6 @@
 // widgets/user_avatar.dart — аватар с инициалами вместо фотографии.
 import 'package:flutter/material.dart';
-import '../data/mock_data.dart';
+import '../data/user.dart';
 
 class UserAvatar extends StatelessWidget {
   final User user;

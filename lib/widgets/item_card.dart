@@ -1,6 +1,6 @@
 // widgets/item_card.dart — плитка вещи для сетки ленты.
 import 'package:flutter/material.dart';
-import '../data/mock_data.dart';
+import '../data/item.dart';
 import 'item_photo.dart';
 import 'status_badge.dart';
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../data/item.dart';
 import '../data/mock_data.dart';
+import '../data/reservation.dart';
 import '../widgets/user_avatar.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -46,15 +48,15 @@ class ProfileScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Center(child: UserAvatar(user: currentUser, radius: 44)),
+          Center(child: UserAvatar(user: mockCurrentUser, radius: 44)),
           const SizedBox(height: 12),
           Text(
-            currentUser.name,
+            mockCurrentUser.name,
             textAlign: TextAlign.center,
             style: text.headlineSmall,
           ),
           Text(
-            currentUser.email,
+            mockCurrentUser.email,
             textAlign: TextAlign.center,
             style: text.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
           ),

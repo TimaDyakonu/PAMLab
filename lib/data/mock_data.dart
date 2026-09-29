@@ -1,115 +1,11 @@
-// data/mock_data.dart — mock-модель: поля берутся из модели данных темы
-// (Item, Reservation, User, Category). На L2 данные зашиты в код;
-// на L5 их заменит backend.
-import 'package:flutter/material.dart';
-
-/// Статус вещи: жизненный цикл «доступна → забронирована → продана».
-enum ItemStatus {
-  available('Доступна'),
-  reserved('Забронирована'),
-  sold('Продана');
-
-  final String label;
-  const ItemStatus(this.label);
-}
-
-/// Статус брони с точки зрения покупателя.
-enum ReservationStatus {
-  pending('Ожидает ответа'),
-  confirmed('Подтверждена'),
-  completed('Завершена'),
-  cancelled('Отменена');
-
-  final String label;
-  const ReservationStatus(this.label);
-}
-
-class User {
-  final String id;
-  final String name;
-  final String email;
-  final String avatarUrl; // на L2 пусто — вместо фото аватар с инициалами
-
-  const User(this.id, this.name, this.email, [this.avatarUrl = '']);
-}
-
-class Category {
-  final String id;
-  final String name;
-  final IconData icon; // только для UI: иконка-заглушка вместо фотографии
-
-  const Category(this.id, this.name, this.icon);
-}
-
-class Item {
-  final String id;
-  final String title;
-  final String description;
-  final double price;
-  final String size;
-  final String condition;
-  final Category category;
-  final String imageUrl; // на L2 пусто — вместо фото иконка категории
-  final String ownerId;
-  final ItemStatus status;
-  final DateTime createdAt;
-
-  const Item({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.price,
-    required this.size,
-    required this.condition,
-    required this.category,
-    this.imageUrl = '',
-    required this.ownerId,
-    required this.status,
-    required this.createdAt,
-  });
-
-  String get priceLabel => '${price.toStringAsFixed(0)} MDL';
-}
-
-class Reservation {
-  final String id;
-  final String itemId;
-  final String buyerId;
-  final ReservationStatus status;
-  final DateTime createdAt;
-
-  const Reservation(
-      this.id, this.itemId, this.buyerId, this.status, this.createdAt);
-}
-
-/// Дата в формате 18.09.2026.
-String formatDate(DateTime date) {
-  final day = date.day.toString().padLeft(2, '0');
-  final month = date.month.toString().padLeft(2, '0');
-  return '$day.$month.${date.year}';
-}
-
-// ---------------------------------------------------------------------------
-// Зашитые в код данные, реалистичные для домена
-// ---------------------------------------------------------------------------
-
-const mockCategories = [
-  Category('c1', 'Верхняя одежда', Icons.dry_cleaning),
-  Category('c2', 'Джинсы и брюки', Icons.style),
-  Category('c3', 'Платья и юбки', Icons.woman),
-  Category('c4', 'Свитеры и худи', Icons.checkroom),
-  Category('c5', 'Обувь', Icons.snowshoeing),
-  Category('c6', 'Аксессуары', Icons.shopping_bag),
-];
-
-const mockSizes = ['XS', 'S', 'M', 'L', 'XL', '38', '42', 'W32 L32'];
-
-const mockConditions = [
-  'Новое с биркой',
-  'Отличное',
-  'Хорошее',
-  'Удовлетворительное',
-];
+// data/mock_data.dart — seed-данные для mock-репозиториев.
+// Этот файл видит только data/mock_*_repository.dart и корень композиции
+// main.dart: экраны, widget-ы и модели о нём не знают. На L5 данные придут
+// из backend-а, и файл исчезнет вместе с mock-ом.
+import 'catalog.dart';
+import 'item.dart';
+import 'reservation.dart';
+import 'user.dart';
 
 const mockUsers = [
   User('u1', 'Admin', 'admin@secondhand.md'),
@@ -119,8 +15,8 @@ const mockUsers = [
   User('u5', 'Елена Кожокару', 'elena.cojocaru@mail.md'),
 ];
 
-/// Пользователь, «вошедший» в приложение.
-const currentUser = User('u1', 'Admin', 'admin@secondhand.md');
+/// Пользователь, «вошедший» в приложение (вход на L4 — локальная валидация).
+final mockCurrentUser = mockUsers[0];
 
 final mockItems = [
   // --- вещи других пользователей: лента объявлений ---
@@ -132,8 +28,8 @@ final mockItems = [
     price: 350,
     size: 'W32 L32',
     condition: 'Отличное',
-    category: mockCategories[1],
-    ownerId: 'u2',
+    category: catalogCategories[1],
+    owner: mockUsers[1],
     status: ItemStatus.available,
     createdAt: DateTime(2026, 9, 16),
   ),
@@ -145,8 +41,8 @@ final mockItems = [
     price: 1850,
     size: 'M',
     condition: 'Хорошее',
-    category: mockCategories[0],
-    ownerId: 'u3',
+    category: catalogCategories[0],
+    owner: mockUsers[2],
     status: ItemStatus.available,
     createdAt: DateTime(2026, 9, 15),
   ),
@@ -158,8 +54,8 @@ final mockItems = [
     price: 280,
     size: 'S',
     condition: 'Отличное',
-    category: mockCategories[2],
-    ownerId: 'u5',
+    category: catalogCategories[2],
+    owner: mockUsers[4],
     status: ItemStatus.available,
     createdAt: DateTime(2026, 9, 14),
   ),
@@ -171,8 +67,8 @@ final mockItems = [
     price: 950,
     size: '42',
     condition: 'Хорошее',
-    category: mockCategories[4],
-    ownerId: 'u4',
+    category: catalogCategories[4],
+    owner: mockUsers[3],
     status: ItemStatus.reserved,
     createdAt: DateTime(2026, 9, 12),
   ),
@@ -184,8 +80,8 @@ final mockItems = [
     price: 620,
     size: 'L',
     condition: 'Отличное',
-    category: mockCategories[3],
-    ownerId: 'u2',
+    category: catalogCategories[3],
+    owner: mockUsers[1],
     status: ItemStatus.available,
     createdAt: DateTime(2026, 9, 11),
   ),
@@ -197,8 +93,8 @@ final mockItems = [
     price: 1200,
     size: 'S',
     condition: 'Новое с биркой',
-    category: mockCategories[0],
-    ownerId: 'u5',
+    category: catalogCategories[0],
+    owner: mockUsers[4],
     status: ItemStatus.available,
     createdAt: DateTime(2026, 9, 10),
   ),
@@ -210,8 +106,8 @@ final mockItems = [
     price: 450,
     size: 'Без размера',
     condition: 'Хорошее',
-    category: mockCategories[5],
-    ownerId: 'u3',
+    category: catalogCategories[5],
+    owner: mockUsers[2],
     status: ItemStatus.sold,
     createdAt: DateTime(2026, 9, 9),
   ),
@@ -223,8 +119,8 @@ final mockItems = [
     price: 190,
     size: 'M',
     condition: 'Хорошее',
-    category: mockCategories[3],
-    ownerId: 'u4',
+    category: catalogCategories[3],
+    owner: mockUsers[3],
     status: ItemStatus.available,
     createdAt: DateTime(2026, 9, 8),
   ),
@@ -236,8 +132,8 @@ final mockItems = [
     price: 160,
     size: 'XS',
     condition: 'Удовлетворительное',
-    category: mockCategories[2],
-    ownerId: 'u3',
+    category: catalogCategories[2],
+    owner: mockUsers[2],
     status: ItemStatus.sold,
     createdAt: DateTime(2026, 9, 5),
   ),
@@ -249,8 +145,8 @@ final mockItems = [
     price: 1400,
     size: '38',
     condition: 'Хорошее',
-    category: mockCategories[4],
-    ownerId: 'u2',
+    category: catalogCategories[4],
+    owner: mockUsers[1],
     status: ItemStatus.reserved,
     createdAt: DateTime(2026, 9, 3),
   ),
@@ -264,8 +160,8 @@ final mockItems = [
     price: 300,
     size: 'S',
     condition: 'Отличное',
-    category: mockCategories[0],
-    ownerId: 'u1',
+    category: catalogCategories[0],
+    owner: mockUsers[0],
     status: ItemStatus.available,
     createdAt: DateTime(2026, 9, 17),
   ),
@@ -277,8 +173,8 @@ final mockItems = [
     price: 420,
     size: 'M',
     condition: 'Новое с биркой',
-    category: mockCategories[1],
-    ownerId: 'u1',
+    category: catalogCategories[1],
+    owner: mockUsers[0],
     status: ItemStatus.available,
     createdAt: DateTime(2026, 9, 13),
   ),
@@ -290,8 +186,8 @@ final mockItems = [
     price: 150,
     size: 'S',
     condition: 'Хорошее',
-    category: mockCategories[3],
-    ownerId: 'u1',
+    category: catalogCategories[3],
+    owner: mockUsers[0],
     status: ItemStatus.reserved,
     createdAt: DateTime(2026, 9, 7),
   ),
@@ -303,8 +199,8 @@ final mockItems = [
     price: 380,
     size: '38',
     condition: 'Хорошее',
-    category: mockCategories[4],
-    ownerId: 'u1',
+    category: catalogCategories[4],
+    owner: mockUsers[0],
     status: ItemStatus.sold,
     createdAt: DateTime(2026, 8, 30),
   ),
@@ -316,8 +212,8 @@ final mockItems = [
     price: 240,
     size: 'XS',
     condition: 'Отличное',
-    category: mockCategories[2],
-    ownerId: 'u1',
+    category: catalogCategories[2],
+    owner: mockUsers[0],
     status: ItemStatus.available,
     createdAt: DateTime(2026, 8, 28),
   ),
@@ -329,8 +225,8 @@ final mockItems = [
     price: 320,
     size: 'Без размера',
     condition: 'Отличное',
-    category: mockCategories[5],
-    ownerId: 'u1',
+    category: catalogCategories[5],
+    owner: mockUsers[0],
     status: ItemStatus.sold,
     createdAt: DateTime(2026, 8, 20),
   ),
@@ -352,15 +248,13 @@ final mockReservations = [
       DateTime(2026, 8, 25)),
 ];
 
-// Поиск по id — вместо запросов к backend-у на L5.
+
+// --- временные помощники: исчезнут, когда все экраны перейдут на модели ---
 User userById(String id) => mockUsers.firstWhere((u) => u.id == id);
 Item itemById(String id) => mockItems.firstWhere((i) => i.id == id);
 
-/// Вещи других пользователей — содержимое ленты.
 List<Item> get feedItems =>
-    mockItems.where((i) => i.ownerId != currentUser.id).toList();
+    mockItems.where((i) => i.owner.id != mockCurrentUser.id).toList();
 
-/// Вещи, которые продаёт текущий пользователь.
 List<Item> get myItems =>
-    mockItems.where((i) => i.ownerId == currentUser.id).toList();
-
+    mockItems.where((i) => i.owner.id == mockCurrentUser.id).toList();

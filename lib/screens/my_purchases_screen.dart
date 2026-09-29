@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../data/format_date.dart';
 import '../data/mock_data.dart';
 import '../widgets/item_tile.dart';
 import '../widgets/status_badge.dart';
@@ -18,7 +19,7 @@ class MyPurchasesScreen extends StatelessWidget {
         itemBuilder: (context, index) {
           final reservation = mockReservations[index];
           final item = itemById(reservation.itemId);
-          final seller = userById(item.ownerId);
+          final seller = item.owner;
           return ItemTile(
             item: item,
             badge: StatusBadge.reservation(reservation.status),
