@@ -18,7 +18,7 @@ P2P-маркетплейс секонд-хенда: платформа для о
 
 ## Модель данных
 
-- `Item(id, title, description, price, size, condition, category, imageUrl, ownerId, status, createdAt)`
+- `Item(id, title, description, price, size, condition, category, imageUrl, owner, status, createdAt)`
 - `Reservation(id, itemId, buyerId, status, createdAt)`
 - `User(id, name, email, avatarUrl)`
 - `Category(id, name)`
@@ -27,11 +27,27 @@ P2P-маркетплейс секонд-хенда: платформа для о
 
 ```
 lib/
-├── main.dart   # MaterialApp + тема + стартовый экран
-├── screens/    # по одному файлу на экран
-├── widgets/    # переиспользуемые компоненты
-└── data/       # mock-данные, общие для нескольких экранов
+├── main.dart     # корень композиции (выбор источника данных), тема, MaterialApp.router
+├── router.dart   # карта маршрутов go_router
+├── screens/      # по одному файлу на экран
+├── widgets/      # переиспользуемые компоненты
+├── models/       # ChangeNotifier-модели разделяемого состояния (чистый Dart)
+└── data/         # сущности, Result, интерфейсы Repository, mock-реализации и seed
 ```
+
+## Архитектура данных (L4)
+
+```
+экраны ──watch / read──▶ модели ChangeNotifier ──Future<Result<T>>──▶ Repository (интерфейс)
+                                                                            ▲ implements
+                                                                  MockItemRepository (L4)
+                                                                  вариант на http     (L5)
+```
+
+- Экраны и widget-ы не знают источника данных: `grep -rn "mock_data" lib/screens lib/widgets lib/models` пуст.
+- Источник выбирается в одном месте — `main()`; на L5 заменяется реализация repository и корень композиции.
+- Три состояния на каждом экране с данными: загрузка → данные → ошибка с кнопкой «Повторить».
+- Переключатель «Симулировать сбой сети» (профиль) включает аварию mock-а для демонстрации.
 
 ## Запуск
 
