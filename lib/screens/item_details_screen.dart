@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../data/mock_data.dart';
+import '../models/favorites_model.dart';
 import '../widgets/item_photo.dart';
 import '../widgets/status_badge.dart';
 import '../widgets/user_avatar.dart';
@@ -15,18 +17,29 @@ class ItemDetailsScreen extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final item = itemById(itemId);
     final seller = userById(item.ownerId);
+    // watch в build: сердечко перерисовывается, когда избранное меняется
+    final isFavorite = context.watch<FavoritesModel>().isFavorite(item.id);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Карточка вещи'),
         actions: [
           IconButton(
+            // read в callback-е: действие, а не подписка
             onPressed: () {
+              context.read<FavoritesModel>().toggle(item.id);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Добавлено в избранное')),
+                SnackBar(
+                  content: Text(isFavorite
+                      ? 'Убрано из избранного'
+                      : 'Добавлено в избранное'),
+                ),
               );
             },
-            icon: const Icon(Icons.favorite_border),
+            icon: Icon(
+              isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: isFavorite ? scheme.error : null,
+            ),
           ),
           IconButton(onPressed: () {}, icon: const Icon(Icons.share_outlined)),
         ],

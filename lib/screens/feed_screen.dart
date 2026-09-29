@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../data/mock_data.dart';
+import '../models/favorites_model.dart';
 import '../widgets/item_card.dart';
 
 class FeedScreen extends StatelessWidget {
@@ -16,7 +18,15 @@ class FeedScreen extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {},
-            icon: const Icon(Icons.notifications_none),
+            // Consumer: пересобирается только значок, а не весь экран
+            icon: Consumer<FavoritesModel>(
+              builder: (context, favorites, child) => Badge(
+                isLabelVisible: favorites.count > 0,
+                label: Text('${favorites.count}'),
+                child: child!,
+              ),
+              child: const Icon(Icons.favorite_border),
+            ),
           ),
         ],
       ),

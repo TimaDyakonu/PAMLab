@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'models/favorites_model.dart';
 import 'router.dart';
 
-void main() => runApp(const MyApp());
+void main() {
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => FavoritesModel()),
+      ],
+      child: const MyApp(),
+    ),
+  );
+}
 
 const _seedColor = Color(0xFF4A7C59);
 const _themeMode = ThemeMode.system;
@@ -33,4 +44,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
