@@ -73,7 +73,10 @@ class ItemTile extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      badge ?? StatusBadge.item(item.status),
+                      // Flexible: при крупном шрифте бейдж сжимается, а не
+                      // вызывает переполнение строки
+                      Flexible(child: badge ?? StatusBadge.item(item.status)),
+                      const SizedBox(width: 8),
                       Text(
                         item.priceLabel,
                         style: text.titleMedium?.copyWith(

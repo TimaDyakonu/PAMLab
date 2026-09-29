@@ -164,13 +164,16 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      item.priceLabel,
-                      style: text.headlineSmall?.copyWith(
-                        color: scheme.primary,
-                        fontWeight: FontWeight.w700,
+                    // Expanded: цена уступает место длинному бейджу, а не
+                    // вызывает переполнение строки
+                    Expanded(
+                      child: Text(
+                        item.priceLabel,
+                        style: text.headlineSmall?.copyWith(
+                          color: scheme.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                     StatusBadge.item(item.status),

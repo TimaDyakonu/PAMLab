@@ -169,6 +169,7 @@ class _NewItemScreenState extends State<NewItemScreen> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
+              isExpanded: true, // ширина по полю, а не по самому длинному пункту
               initialValue: _category,
               decoration: const InputDecoration(
                 labelText: 'Категория',
@@ -187,6 +188,7 @@ class _NewItemScreenState extends State<NewItemScreen> {
               children: [
                 Expanded(
                   child: DropdownButtonFormField<String>(
+                    isExpanded: true, // ширина по полю, а не по самому длинному пункту
                     initialValue: _size,
                     decoration: const InputDecoration(
                       labelText: 'Размер',
@@ -204,6 +206,7 @@ class _NewItemScreenState extends State<NewItemScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: DropdownButtonFormField<String>(
+                    isExpanded: true, // ширина по полю, а не по самому длинному пункту
                     initialValue: _condition,
                     decoration: const InputDecoration(
                       labelText: 'Состояние',
@@ -211,7 +214,10 @@ class _NewItemScreenState extends State<NewItemScreen> {
                     ),
                     items: [
                       for (final c in catalogConditions)
-                        DropdownMenuItem(value: c, child: Text(c)),
+                        DropdownMenuItem(
+                          value: c,
+                          child: Text(c, overflow: TextOverflow.ellipsis),
+                        ),
                     ],
                     onChanged: (v) => setState(() => _condition = v),
                     validator: (value) =>
