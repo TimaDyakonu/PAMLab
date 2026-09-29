@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../data/catalog.dart';
+import '../data/item.dart';
+import '../data/user.dart';
+import '../models/items_model.dart';
 
 class NewItemScreen extends StatefulWidget {
   const NewItemScreen({super.key});
@@ -20,6 +24,9 @@ class _NewItemScreenState extends State<NewItemScreen> {
   String? _size;
   String? _condition;
 
+  // Эфемерное состояние: «запрос летит» — setState, а не модель.
+  bool _saving = false;
+
   @override
   void dispose() {
     _titleCtrl.dispose();
@@ -28,12 +35,52 @@ class _NewItemScreenState extends State<NewItemScreen> {
     super.dispose();
   }
 
-  void _publish() {
-    if (!_formKey.currentState!.validate()) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Опубликовано: ${_titleCtrl.text.trim()}')),
+  // Валидный submit ПИШЕТ в модель через repository, затем уходит.
+  Future<void> _save() async {
+    if (!_formKey.currentState!.validate()) return; // валидация L3, нетронута
+
+    final items = context.read<ItemsModel>();
+    final owner = context.read<User>();
+    final messenger = ScaffoldMessenger.of(context);
+    final router = GoRouter.of(context);
+    final openedFromFeed =
+        GoRouterState.of(context).matchedLocation.startsWith('/feed');
+
+    final draft = Item(
+      id: '', // временный id — настоящую идентичность даст хранилище (на L5: сервер)
+      title: _titleCtrl.text.trim(),
+      description: _descCtrl.text.trim(),
+      price: double.parse(_priceCtrl.text),
+      size: _size!,
+      condition: _condition!,
+      category: catalogCategories.firstWhere((c) => c.id == _category),
+      owner: owner,
+      status: ItemStatus.available,
+      createdAt: DateTime.now(),
     );
-    context.pop();
+
+    setState(() => _saving = true);
+    final error = await items.add(draft);
+    if (!mounted) return; // экран может умереть, пока запрос летит
+    setState(() => _saving = false);
+
+    if (error != null) {
+      messenger.showSnackBar(SnackBar(content: Text(error))); // данные остаются
+      return;
+    }
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text('Опубликовано: ${draft.title}'),
+        // из ленты своих вещей не видно, поэтому даём путь к ним
+        action: openedFromFeed
+            ? SnackBarAction(
+                label: 'Мои вещи',
+                onPressed: () => router.go('/my-items'),
+              )
+            : null,
+      ),
+    );
+    context.pop(); // список позади УЖЕ вырос — без единого лишнего вызова
   }
 
   @override
@@ -197,11 +244,17 @@ class _NewItemScreenState extends State<NewItemScreen> {
             ),
             const SizedBox(height: 16),
             FilledButton(
-              onPressed: _publish,
+              onPressed: _saving ? null : _save,
               style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(52),
               ),
-              child: const Text('Опубликовать'),
+              child: _saving
+                  ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Опубликовать'),
             ),
           ],
         ),
