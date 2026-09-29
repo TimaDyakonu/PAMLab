@@ -44,6 +44,10 @@ final router = GoRouter(
             builder: (context, state) => const MyItemsScreen(),
             routes: [
               GoRoute(
+                path: 'new',
+                builder: (context, state) => const NewItemScreen(),
+              ),
+              GoRoute(
                 path: ':id',
                 builder: (context, state) {
                   final id = state.pathParameters['id']!;
