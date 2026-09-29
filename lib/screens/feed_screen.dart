@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../data/catalog.dart';
-import '../data/mock_data.dart';
+import '../data/user.dart';
 import '../models/favorites_model.dart';
+import '../models/items_model.dart';
+import '../widgets/empty_view.dart';
+import '../widgets/error_view.dart';
 import '../widgets/item_card.dart';
 
 class FeedScreen extends StatelessWidget {
@@ -11,12 +14,48 @@ class FeedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = feedItems;
+    final model = context.watch<ItemsModel>(); // watch в build
+    final user = context.watch<User>();
+
+    // три состояния экрана — на виду
+    final Widget content;
+    if (model.isLoading) {
+      content = const Center(child: CircularProgressIndicator()); // 1) грузится
+    } else if (model.error != null) {
+      content = ErrorView(
+        message: model.error!, // 2) упало
+        onRetry: () => context.read<ItemsModel>().load(), // read: действие
+      );
+    } else {
+      final items = model.feedFor(user); // 3) данные
+      content = items.isEmpty
+          ? const EmptyView(
+              icon: Icons.checkroom, message: 'Пока нет объявлений')
+          : GridView.builder(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+              itemCount: items.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 0.68,
+              ),
+              itemBuilder: (context, index) => ItemCard(
+                item: items[index],
+                onTap: () => context.push('/feed/${items[index].id}'),
+              ),
+            );
+    }
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Лента'),
         actions: [
+          IconButton(
+            tooltip: 'Обновить',
+            onPressed: () => context.read<ItemsModel>().load(),
+            icon: const Icon(Icons.refresh),
+          ),
           IconButton(
             onPressed: () {},
             // Consumer: пересобирается только значок, а не весь экран
@@ -51,22 +90,7 @@ class FeedScreen extends StatelessWidget {
             labels: ['Любой размер', ...catalogSizes],
           ),
           const SizedBox(height: 8),
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
-              itemCount: items.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 0.68,
-              ),
-              itemBuilder: (context, index) => ItemCard(
-                item: items[index],
-                onTap: () => context.push('/feed/${items[index].id}'),
-              ),
-            ),
-          ),
+          Expanded(child: content),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -101,4 +125,3 @@ class _FilterRow extends StatelessWidget {
     );
   }
 }
-
