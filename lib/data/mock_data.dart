@@ -247,14 +247,3 @@ final mockReservations = [
   Reservation('r6', 'i7', 'u1', ReservationStatus.completed,
       DateTime(2026, 8, 25)),
 ];
-
-
-// --- временные помощники: исчезнут, когда все экраны перейдут на модели ---
-User userById(String id) => mockUsers.firstWhere((u) => u.id == id);
-Item itemById(String id) => mockItems.firstWhere((i) => i.id == id);
-
-List<Item> get feedItems =>
-    mockItems.where((i) => i.owner.id != mockCurrentUser.id).toList();
-
-List<Item> get myItems =>
-    mockItems.where((i) => i.owner.id == mockCurrentUser.id).toList();
