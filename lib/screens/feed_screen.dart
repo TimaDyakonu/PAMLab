@@ -7,6 +7,7 @@ import '../models/favorites_model.dart';
 import '../models/items_model.dart';
 import '../widgets/empty_view.dart';
 import '../widgets/error_view.dart';
+import '../widgets/favorites_sheet.dart';
 import '../widgets/item_card.dart';
 
 class FeedScreen extends StatelessWidget {
@@ -57,7 +58,11 @@ class FeedScreen extends StatelessWidget {
             icon: const Icon(Icons.refresh),
           ),
           IconButton(
-            onPressed: () {},
+            tooltip: 'Избранное',
+            onPressed: () => FavoritesSheet.show(
+              context,
+              onOpen: (id) => context.push('/feed/$id'),
+            ),
             // Consumer: пересобирается только значок, а не весь экран
             icon: Consumer<FavoritesModel>(
               builder: (context, favorites, child) => Badge(
