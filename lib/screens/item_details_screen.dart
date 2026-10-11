@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../data/format_date.dart';
 import '../data/item.dart';
 import '../data/reservation.dart';
 import '../data/user.dart';
 import '../models/favorites_model.dart';
 import '../models/items_model.dart';
 import '../models/reservations_model.dart';
+import '../widgets/confirm_dialog.dart';
 import '../widgets/error_view.dart';
+import '../widgets/item_action_bar.dart';
+import '../widgets/item_info_card.dart';
 import '../widgets/item_photo.dart';
+import '../widgets/seller_card.dart';
 import '../widgets/status_badge.dart';
-import '../widgets/user_avatar.dart';
 
 class ItemDetailsScreen extends StatefulWidget {
   final String itemId;
@@ -23,7 +25,7 @@ class ItemDetailsScreen extends StatefulWidget {
 }
 
 class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
-  // Эфемерное состояние: «запрос летит» видит только этот экран — setState.
+  // Эфемерное состояние: «запрос летит» видит только этот экран, поэтому setState.
   bool _busy = false;
 
   Future<void> _reserve(Item item, User buyer) async {
@@ -61,24 +63,13 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     final items = context.read<ItemsModel>();
     final messenger = ScaffoldMessenger.of(context);
 
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (dialogCtx) => AlertDialog(
-        title: const Text('Удалить объявление?'),
-        content: Text('«${item.title}» исчезнет из ленты и из ваших объявлений.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogCtx, false),
-            child: const Text('Отмена'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogCtx, true),
-            child: const Text('Удалить'),
-          ),
-        ],
-      ),
+    final ok = await ConfirmDialog.show(
+      context,
+      title: 'Удалить объявление?',
+      message: '«${item.title}» исчезнет из ленты и из ваших объявлений.',
+      confirmLabel: 'Удалить',
     );
-    if (ok != true || !mounted) return;
+    if (!ok || !mounted) return;
 
     setState(() => _busy = true);
     final error = await items.remove(item.id);
@@ -90,7 +81,19 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
       return;
     }
     messenger.showSnackBar(const SnackBar(content: Text('Объявление удалено')));
-    context.pop(); // объекта больше нет — его экран уходит из стека
+    context.pop(); // объекта больше нет, его экран уходит из стека
+  }
+
+  void _toggleFavorite(Item item, bool isFavorite) {
+    // read в callback-е: действие, а не подписка
+    context.read<FavoritesModel>().toggle(item.id);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          isFavorite ? 'Убрано из избранного' : 'Добавлено в избранное',
+        ),
+      ),
+    );
   }
 
   @override
@@ -125,7 +128,6 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     }
 
     final seller = item.owner;
-    final isOwner = seller.id == user.id;
     final myReservation = reservations.activeFor(item.id);
 
     return Scaffold(
@@ -133,17 +135,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
         title: const Text('Карточка вещи'),
         actions: [
           IconButton(
-            // read в callback-е: действие, а не подписка
-            onPressed: () {
-              context.read<FavoritesModel>().toggle(item.id);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(isFavorite
-                      ? 'Убрано из избранного'
-                      : 'Добавлено в избранное'),
-                ),
-              );
-            },
+            onPressed: () => _toggleFavorite(item, isFavorite),
             icon: Icon(
               isFavorite ? Icons.favorite : Icons.favorite_border,
               color: isFavorite ? scheme.error : null,
@@ -182,36 +174,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                 const SizedBox(height: 4),
                 Text(item.title, style: text.titleLarge),
                 const SizedBox(height: 16),
-                Card(
-                  margin: EdgeInsets.zero,
-                  child: Column(
-                    children: [
-                      ListTile(
-                        leading: const Icon(Icons.straighten),
-                        title: const Text('Размер'),
-                        trailing: Text(item.size, style: text.titleSmall),
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.auto_awesome_outlined),
-                        title: const Text('Состояние'),
-                        trailing:
-                            Text(item.condition, style: text.titleSmall),
-                      ),
-                      ListTile(
-                        leading: Icon(item.category.icon),
-                        title: const Text('Категория'),
-                        trailing:
-                            Text(item.category.name, style: text.titleSmall),
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.calendar_today_outlined),
-                        title: const Text('Опубликовано'),
-                        trailing: Text(formatDate(item.createdAt),
-                            style: text.titleSmall),
-                      ),
-                    ],
-                  ),
-                ),
+                ItemInfoCard(item: item),
                 const SizedBox(height: 16),
                 Text('Описание', style: text.titleMedium),
                 const SizedBox(height: 4),
@@ -219,82 +182,25 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                 const SizedBox(height: 16),
                 Text('Продавец', style: text.titleMedium),
                 const SizedBox(height: 4),
-                Card(
-                  margin: EdgeInsets.zero,
-                  child: ListTile(
-                    leading: UserAvatar(user: seller),
-                    title: Text(seller.name),
-                    subtitle: Text(seller.email),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {},
-                  ),
-                ),
+                SellerCard(user: seller, onTap: () {}),
               ],
             ),
           ),
         ],
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-          child: isOwner
-              ? OutlinedButton.icon(
-                  onPressed: _busy ? null : () => _delete(item),
-                  icon: const Icon(Icons.delete_outline),
-                  label: const Text('Удалить объявление'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: scheme.error,
-                    minimumSize: const Size.fromHeight(48),
-                  ),
-                )
-              : Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content:
-                                  Text('Чат с продавцом откроется на L5'),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.chat_bubble_outline),
-                        label: const Text('Написать'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _busy
-                          ? const FilledButton(
-                              onPressed: null,
-                              child: SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2),
-                              ),
-                            )
-                          : myReservation != null
-                              ? FilledButton.tonal(
-                                  onPressed: () =>
-                                      _cancelReservation(item, myReservation),
-                                  child: const Text('Отменить бронь'),
-                                )
-                              : FilledButton(
-                                  onPressed: item.status == ItemStatus.available
-                                      ? () => _reserve(item, user)
-                                      : null,
-                                  child: Text(
-                                    item.status == ItemStatus.available
-                                        ? 'Забронировать'
-                                        : item.status.label,
-                                  ),
-                                ),
-                    ),
-                  ],
-                ),
+      bottomNavigationBar: ItemActionBar(
+        isOwner: seller.id == user.id,
+        busy: _busy,
+        status: item.status,
+        hasActiveReservation: myReservation != null,
+        onDelete: () => _delete(item),
+        onMessage: () => ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Чат с продавцом откроется на L5')),
         ),
+        onReserve: () => _reserve(item, user),
+        onCancelReservation: () {
+          if (myReservation != null) _cancelReservation(item, myReservation);
+        },
       ),
     );
   }

@@ -6,6 +6,9 @@ import '../data/catalog.dart';
 import '../data/item.dart';
 import '../data/user.dart';
 import '../models/items_model.dart';
+import '../widgets/button_spinner.dart';
+import '../widgets/form_dropdown.dart';
+import '../widgets/photo_strip.dart';
 
 class NewItemScreen extends StatefulWidget {
   const NewItemScreen({super.key});
@@ -24,7 +27,7 @@ class _NewItemScreenState extends State<NewItemScreen> {
   String? _size;
   String? _condition;
 
-  // Эфемерное состояние: «запрос летит» — setState, а не модель.
+  // Эфемерное состояние: «запрос летит», поэтому setState, а не модель.
   bool _saving = false;
 
   @override
@@ -47,7 +50,7 @@ class _NewItemScreenState extends State<NewItemScreen> {
         GoRouterState.of(context).matchedLocation.startsWith('/feed');
 
     final draft = Item(
-      id: '', // временный id — настоящую идентичность даст хранилище (на L5: сервер)
+      id: '', // временный id: настоящую идентичность даст хранилище (на L5: сервер)
       title: _titleCtrl.text.trim(),
       description: _descCtrl.text.trim(),
       price: double.parse(_priceCtrl.text),
@@ -80,14 +83,11 @@ class _NewItemScreenState extends State<NewItemScreen> {
             : null,
       ),
     );
-    context.pop(); // список позади УЖЕ вырос — без единого лишнего вызова
+    context.pop(); // список позади УЖЕ вырос, без единого лишнего вызова
   }
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final text = Theme.of(context).textTheme;
-
     return Scaffold(
       appBar: AppBar(title: const Text('Новое объявление')),
       body: Form(
@@ -95,38 +95,7 @@ class _NewItemScreenState extends State<NewItemScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            Text('Фотографии', style: text.titleMedium),
-            const SizedBox(height: 8),
-            SizedBox(
-              height: 96,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: 4,
-                separatorBuilder: (_, _) => const SizedBox(width: 8),
-                itemBuilder: (context, index) => Container(
-                  width: 96,
-                  decoration: BoxDecoration(
-                    color: index == 0
-                        ? scheme.primaryContainer
-                        : scheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    index == 0
-                        ? Icons.add_a_photo_outlined
-                        : Icons.image_outlined,
-                    color: index == 0
-                        ? scheme.onPrimaryContainer
-                        : scheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'До 5 фото. Первое станет обложкой объявления.',
-              style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
-            ),
+            const PhotoStrip(),
             const SizedBox(height: 24),
             TextFormField(
               controller: _titleCtrl,
@@ -168,36 +137,21 @@ class _NewItemScreenState extends State<NewItemScreen> {
               },
             ),
             const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              isExpanded: true, // ширина по полю, а не по самому длинному пункту
-              initialValue: _category,
-              decoration: const InputDecoration(
-                labelText: 'Категория',
-                border: OutlineInputBorder(),
-              ),
-              items: [
-                for (final c in catalogCategories)
-                  DropdownMenuItem(value: c.id, child: Text(c.name)),
-              ],
+            FormDropdown(
+              label: 'Категория',
+              value: _category,
+              options: {for (final c in catalogCategories) c.id: c.name},
               onChanged: (v) => setState(() => _category = v),
-              validator: (value) =>
-                  value == null ? 'Выберите категорию' : null,
+              validator: (value) => value == null ? 'Выберите категорию' : null,
             ),
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
-                  child: DropdownButtonFormField<String>(
-                    isExpanded: true, // ширина по полю, а не по самому длинному пункту
-                    initialValue: _size,
-                    decoration: const InputDecoration(
-                      labelText: 'Размер',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: [
-                      for (final s in catalogSizes)
-                        DropdownMenuItem(value: s, child: Text(s)),
-                    ],
+                  child: FormDropdown(
+                    label: 'Размер',
+                    value: _size,
+                    options: {for (final s in catalogSizes) s: s},
                     onChanged: (v) => setState(() => _size = v),
                     validator: (value) =>
                         value == null ? 'Выберите размер' : null,
@@ -205,20 +159,10 @@ class _NewItemScreenState extends State<NewItemScreen> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: DropdownButtonFormField<String>(
-                    isExpanded: true, // ширина по полю, а не по самому длинному пункту
-                    initialValue: _condition,
-                    decoration: const InputDecoration(
-                      labelText: 'Состояние',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: [
-                      for (final c in catalogConditions)
-                        DropdownMenuItem(
-                          value: c,
-                          child: Text(c, overflow: TextOverflow.ellipsis),
-                        ),
-                    ],
+                  child: FormDropdown(
+                    label: 'Состояние',
+                    value: _condition,
+                    options: {for (final c in catalogConditions) c: c},
                     onChanged: (v) => setState(() => _condition = v),
                     validator: (value) =>
                         value == null ? 'Укажите состояние' : null,
@@ -255,11 +199,7 @@ class _NewItemScreenState extends State<NewItemScreen> {
                 minimumSize: const Size.fromHeight(52),
               ),
               child: _saving
-                  ? const SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
+                  ? const ButtonSpinner(size: 22)
                   : const Text('Опубликовать'),
             ),
           ],
@@ -268,4 +208,3 @@ class _NewItemScreenState extends State<NewItemScreen> {
     );
   }
 }
-

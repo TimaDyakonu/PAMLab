@@ -8,6 +8,7 @@ import '../models/items_model.dart';
 import '../widgets/empty_view.dart';
 import '../widgets/error_view.dart';
 import '../widgets/favorites_sheet.dart';
+import '../widgets/filter_chip_row.dart';
 import '../widgets/item_card.dart';
 
 class FeedScreen extends StatelessWidget {
@@ -88,10 +89,10 @@ class FeedScreen extends StatelessWidget {
               elevation: const WidgetStatePropertyAll(0),
             ),
           ),
-          _FilterRow(
+          FilterChipRow(
             labels: ['Все', for (final c in catalogCategories) c.name],
           ),
-          _FilterRow(
+          FilterChipRow(
             labels: ['Любой размер', ...catalogSizes],
           ),
           const SizedBox(height: 8),
@@ -102,30 +103,6 @@ class FeedScreen extends StatelessWidget {
         onPressed: () => context.push('/feed/new'),
         icon: const Icon(Icons.add),
         label: const Text('Продать'),
-      ),
-    );
-  }
-}
-
-class _FilterRow extends StatelessWidget {
-  final List<String> labels;
-
-  const _FilterRow({required this.labels});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 48,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: labels.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 8),
-        itemBuilder: (context, index) => FilterChip(
-          label: Text(labels[index]),
-          selected: index == 0,
-          onSelected: (_) {},
-        ),
       ),
     );
   }

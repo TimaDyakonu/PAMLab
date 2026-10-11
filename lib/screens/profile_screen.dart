@@ -7,6 +7,8 @@ import '../data/user.dart';
 import '../models/favorites_model.dart';
 import '../models/items_model.dart';
 import '../models/reservations_model.dart';
+import '../widgets/confirm_dialog.dart';
+import '../widgets/stat_card.dart';
 import '../widgets/user_avatar.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -27,24 +29,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _logout() async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (dialogCtx) => AlertDialog(
-        title: const Text('Выйти из аккаунта?'),
-        content: const Text('Вы уверены, что хотите выйти?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogCtx, false),
-            child: const Text('Отмена'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogCtx, true),
-            child: const Text('Да, выйти'),
-          ),
-        ],
-      ),
+    final ok = await ConfirmDialog.show(
+      context,
+      title: 'Выйти из аккаунта?',
+      message: 'Вы уверены, что хотите выйти?',
+      confirmLabel: 'Да, выйти',
     );
-    if (ok == true && mounted) {
+    if (ok && mounted) {
       context.go('/login');
     }
   }
@@ -88,7 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Row(
             children: [
               Expanded(
-                child: _StatCard(
+                child: StatCard(
                   value: stat(() =>
                       mine.where((i) => i.status != ItemStatus.sold).length),
                   label: 'В продаже',
@@ -96,7 +87,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: _StatCard(
+                child: StatCard(
                   value: stat(() =>
                       mine.where((i) => i.status == ItemStatus.sold).length),
                   label: 'Продано',
@@ -104,7 +95,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: _StatCard(
+                child: StatCard(
                   value: stat(() => reservations.completedCount),
                   label: 'Покупок',
                 ),
@@ -162,43 +153,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             label: const Text('Выйти'),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final String value;
-  final String label;
-
-  const _StatCard({required this.value, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final text = Theme.of(context).textTheme;
-
-    return Card(
-      margin: EdgeInsets.zero,
-      color: scheme.secondaryContainer,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Column(
-          children: [
-            Text(
-              value,
-              style: text.headlineSmall?.copyWith(
-                color: scheme.onSecondaryContainer,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            Text(
-              label,
-              style: text.labelMedium
-                  ?.copyWith(color: scheme.onSecondaryContainer),
-            ),
-          ],
-        ),
       ),
     );
   }
