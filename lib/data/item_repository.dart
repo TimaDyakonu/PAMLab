@@ -4,7 +4,15 @@ import 'item.dart';
 import 'result.dart';
 
 abstract class ItemRepository {
-  Future<Result<List<Item>>> fetchAll(); //         L5: GET    /items
+  /// Интерфейс растёт СОВМЕСТИМО: старый вызов fetchAll() компилируется как
+  /// раньше, новые возможности контракта приходят опциональными параметрами.
+  /// mine: true - мои объявления, false - лента (вещи других пользователей).
+  Future<Result<List<Item>>> fetchAll({
+    int page = 1,
+    int limit = 20,
+    String? search,
+    bool mine = false,
+  }); //                                           L5: GET    /items
   Future<Result<Item>> fetchById(String id); //     L5: GET    /items/{id}
   Future<Result<Item>> create(Item item); //        L5: POST   /items
   Future<Result<Item>> update(Item item); //        L5: PUT    /items/{id}

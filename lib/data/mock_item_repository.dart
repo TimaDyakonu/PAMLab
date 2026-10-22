@@ -16,7 +16,12 @@ class MockItemRepository implements ItemRepository {
   static const _errNotFound = 'Вещи не существует';
 
   @override
-  Future<Result<List<Item>>> fetchAll() async {
+  Future<Result<List<Item>>> fetchAll({
+    int page = 1,
+    int limit = 20,
+    String? search,
+    bool mine = false,
+  }) async {
     await _network.delay();
     if (_network.simulateError) return const Err(MockNetwork.errMessage);
     return Ok(List.of(_items)); // копия — внутренность не отдаётся из рук
