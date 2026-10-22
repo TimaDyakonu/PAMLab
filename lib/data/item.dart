@@ -1,4 +1,5 @@
 // data/item.dart — главная сущность темы: вещь в объявлении.
+import 'catalog.dart';
 import 'category.dart';
 import 'user.dart';
 
@@ -40,6 +41,35 @@ class Item {
   });
 
   String get priceLabel => '${price.toStringAsFixed(0)} MDL';
+
+  /// Граница JSON (L5): так вещь приходит от сервера вместе с продавцом.
+  factory Item.fromJson(Map<String, dynamic> json) => Item(
+        id: '${json['id']}',
+        title: json['title'] as String,
+        description: json['description'] as String? ?? '',
+        price: (json['price'] as num).toDouble(), // 120 приходит как int!
+        size: json['size'] as String,
+        condition: json['condition'] as String,
+        category: catalogCategories.firstWhere(
+          (c) => c.id == json['categoryId'],
+          orElse: () => catalogCategories.first,
+        ),
+        imageUrl: json['imageUrl'] as String? ?? '',
+        owner: User.fromJson(json['owner'] as Map<String, dynamic>),
+        status: ItemStatus.values.byName(json['status'] as String),
+        createdAt: DateTime.parse(json['createdAt'] as String),
+      );
+
+  /// Тело POST /items и PUT /items/{id}: без id, идентичность даёт сервер.
+  Map<String, dynamic> toJson() => {
+        'title': title,
+        'description': description,
+        'price': price,
+        'size': size,
+        'condition': condition,
+        'categoryId': category.id,
+        'imageUrl': imageUrl,
+      };
 
   /// Та же вещь, другая идентичность или статус: id выдаёт хранилище,
   /// статус меняют бронь и продажа.
