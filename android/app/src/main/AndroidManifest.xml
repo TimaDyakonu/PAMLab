@@ -1,5 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- L5: приложение ходит на свой backend по сети. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Лабораторный сервер работает по http (не https): без этого флага Android 9+
+         блокирует открытый трафик. Для production сервер должен быть на https. -->
     <application
+        android:usesCleartextTraffic="true"
         android:label="second_hand_market"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
