@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../data/format_date.dart';
-import '../data/user.dart';
 import '../models/items_model.dart';
 import '../widgets/empty_view.dart';
 import '../widgets/error_view.dart';
@@ -14,18 +13,17 @@ class MyItemsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.watch<ItemsModel>(); // watch в build
-    final user = context.watch<User>();
 
     final Widget body;
-    if (model.isLoading) {
+    if (model.isMineLoading) {
       body = const Center(child: CircularProgressIndicator()); // 1) грузится
-    } else if (model.error != null) {
+    } else if (model.mineError != null) {
       body = ErrorView(
-        message: model.error!, // 2) упало
-        onRetry: () => context.read<ItemsModel>().load(), // read: действие
+        message: model.mineError!, // 2) упало
+        onRetry: () => context.read<ItemsModel>().loadMine(), // read: действие
       );
     } else {
-      final items = model.ownedBy(user); // 3) данные
+      final items = model.mine; // 3) данные
       body = items.isEmpty
           ? const EmptyView(
               icon: Icons.sell_outlined,

@@ -28,7 +28,7 @@ class ItemCard extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  ItemPhoto(category: item.category),
+                  ItemPhoto(category: item.category, imageUrl: item.imageUrl),
                   if (item.status != ItemStatus.available)
                     Positioned(
                       top: 8,

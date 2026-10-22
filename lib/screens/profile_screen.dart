@@ -1,43 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../data/auth_api.dart';
 import '../data/item.dart';
-import '../data/mock_network.dart';
-import '../data/user.dart';
 import '../models/favorites_model.dart';
 import '../models/items_model.dart';
 import '../models/reservations_model.dart';
+import '../models/session_model.dart';
 import '../widgets/confirm_dialog.dart';
 import '../widgets/stat_card.dart';
 import '../widgets/user_avatar.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
+  // Выход: диалог -> токен стирается -> на login. Порядок важен: сначала
+  // навигация, потом очистка сессии, чтобы экраны вкладок не перестроились
+  // без пользователя.
+  Future<void> _logout(BuildContext context) async {
+    final auth = context.read<AuthApi>();
+    final session = context.read<SessionModel>();
+    final router = GoRouter.of(context);
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  // Эфемерное состояние: положение переключателя видит только этот экран.
-  bool _simulateError = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _simulateError = context.read<MockNetwork>().simulateError;
-  }
-
-  Future<void> _logout() async {
     final ok = await ConfirmDialog.show(
       context,
       title: 'Выйти из аккаунта?',
       message: 'Вы уверены, что хотите выйти?',
       confirmLabel: 'Да, выйти',
     );
-    if (ok && mounted) {
-      context.go('/login');
-    }
+    if (!ok) return;
+
+    await auth.logout();
+    router.go('/login');
+    session.signOut();
   }
 
   @override
@@ -45,17 +40,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
 
-    final user = context.watch<User>();
+    final user = context.watch<SessionModel>().user;
     final items = context.watch<ItemsModel>();
     final reservations = context.watch<ReservationsModel>();
     final favorites = context.watch<FavoritesModel>();
 
-    // статистика считается из моделей; пока данных нет — прочерк, не нули
-    final loaded = !items.isLoading &&
-        items.error == null &&
+    // статистика считается из моделей; пока данных нет, прочерк, а не нули
+    final loaded = !items.isMineLoading &&
+        items.mineError == null &&
         !reservations.isLoading &&
         reservations.error == null;
-    final mine = items.ownedBy(user);
+    final mine = items.mine;
     String stat(int Function() value) => loaded ? '${value()}' : '—';
 
     return Scaffold(
@@ -131,24 +126,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          // Единственное место UI, которому позволено знать о mock-е:
-          // леса демонстрации, умирают на L5 вместе с mock-ом.
-          Card(
-            margin: EdgeInsets.zero,
-            child: SwitchListTile(
-              secondary: const Icon(Icons.wifi_off),
-              title: const Text('Симулировать сбой сети'),
-              subtitle: const Text('Для демонстрации экрана ошибки'),
-              value: _simulateError,
-              onChanged: (value) {
-                setState(() => _simulateError = value);
-                context.read<MockNetwork>().simulateError = value;
-              },
-            ),
-          ),
-          const SizedBox(height: 16),
           OutlinedButton.icon(
-            onPressed: _logout,
+            onPressed: () => _logout(context),
             icon: const Icon(Icons.logout),
             label: const Text('Выйти'),
           ),

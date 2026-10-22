@@ -8,8 +8,11 @@ import 'screens/my_purchases_screen.dart';
 import 'screens/profile_screen.dart';
 import 'widgets/app_shell.dart';
 
-final router = GoRouter(
-  initialLocation: '/login',
+/// Роутер создаёт main() после проверки токена: запуск решает, куда идти.
+late GoRouter router;
+
+GoRouter buildRouter(String initialLocation) => GoRouter(
+  initialLocation: initialLocation,
   routes: [
     GoRoute(
       path: '/login',

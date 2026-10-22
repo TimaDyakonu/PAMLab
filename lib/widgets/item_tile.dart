@@ -45,7 +45,11 @@ class ItemTile extends StatelessWidget {
               child: SizedBox(
                 width: 72,
                 height: 72,
-                child: ItemPhoto(category: item.category, iconSize: 32),
+                child: ItemPhoto(
+                  category: item.category,
+                  imageUrl: item.imageUrl,
+                  iconSize: 32,
+                ),
               ),
             ),
             const SizedBox(width: 12),

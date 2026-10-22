@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../data/catalog.dart';
 import '../data/item.dart';
-import '../data/user.dart';
+import '../data/file_api.dart';
+import '../data/result.dart';
 import '../models/items_model.dart';
+import '../models/session_model.dart';
 import '../widgets/button_spinner.dart';
 import '../widgets/form_dropdown.dart';
 import '../widgets/photo_strip.dart';
@@ -29,6 +32,8 @@ class _NewItemScreenState extends State<NewItemScreen> {
 
   // Эфемерное состояние: «запрос летит», поэтому setState, а не модель.
   bool _saving = false;
+  bool _uploading = false;
+  String _imageUrl = ''; // относительный путь загруженного фото, например «/files/7»
 
   @override
   void dispose() {
@@ -38,12 +43,37 @@ class _NewItemScreenState extends State<NewItemScreen> {
     super.dispose();
   }
 
+  // Файл выбирается в галерее и сразу летит на POST /files; в объявлении
+  // остаётся только полученный путь.
+  Future<void> _pickPhoto() async {
+    final files = context.read<FileApi>();
+    final messenger = ScaffoldMessenger.of(context);
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1600,
+      imageQuality: 85,
+    );
+    if (picked == null || !mounted) return;
+
+    setState(() => _uploading = true);
+    final result = await files.upload(picked.path);
+    if (!mounted) return; // экран может умереть, пока файл летит
+    setState(() => _uploading = false);
+
+    switch (result) {
+      case Ok(:final value):
+        setState(() => _imageUrl = value);
+      case Err(:final msg):
+        messenger.showSnackBar(SnackBar(content: Text(msg)));
+    }
+  }
+
   // Валидный submit ПИШЕТ в модель через repository, затем уходит.
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return; // валидация L3, нетронута
 
     final items = context.read<ItemsModel>();
-    final owner = context.read<User>();
+    final owner = context.read<SessionModel>().user;
     final messenger = ScaffoldMessenger.of(context);
     final router = GoRouter.of(context);
     final openedFromFeed =
@@ -57,6 +87,7 @@ class _NewItemScreenState extends State<NewItemScreen> {
       size: _size!,
       condition: _condition!,
       category: catalogCategories.firstWhere((c) => c.id == _category),
+      imageUrl: _imageUrl,
       owner: owner,
       status: ItemStatus.available,
       createdAt: DateTime.now(),
@@ -95,7 +126,11 @@ class _NewItemScreenState extends State<NewItemScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            const PhotoStrip(),
+            PhotoStrip(
+              imageUrl: _imageUrl,
+              uploading: _uploading,
+              onPick: _pickPhoto,
+            ),
             const SizedBox(height: 24),
             TextFormField(
               controller: _titleCtrl,

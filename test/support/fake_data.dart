@@ -1,13 +1,11 @@
-// data/mock_data.dart — seed-данные для mock-репозиториев.
-// Этот файл видит только data/mock_*_repository.dart и корень композиции
-// main.dart: экраны, widget-ы и модели о нём не знают. На L5 данные придут
-// из backend-а, и файл исчезнет вместе с mock-ом.
-import 'catalog.dart';
-import 'item.dart';
-import 'reservation.dart';
-import 'user.dart';
+// Тестовые данные для fake-репозиториев. В приложении их больше нет: на L5
+// данные приходят с сервера, а стартовые данные сервера лежат в server/lib/seed.dart.
+import 'package:second_hand_market/data/catalog.dart';
+import 'package:second_hand_market/data/item.dart';
+import 'package:second_hand_market/data/reservation.dart';
+import 'package:second_hand_market/data/user.dart';
 
-const mockUsers = [
+const fakeUsers = [
   User('u1', 'Admin', 'admin@secondhand.md'),
   User('u2', 'Ион Русу', 'ion.rusu@gmail.com'),
   User('u3', 'Мария Попеску', 'maria.popescu@mail.md'),
@@ -16,9 +14,9 @@ const mockUsers = [
 ];
 
 /// Пользователь, «вошедший» в приложение (вход на L4 — локальная валидация).
-final mockCurrentUser = mockUsers[0];
+final fakeCurrentUser = fakeUsers[0];
 
-final mockItems = [
+final fakeItems = [
   // --- вещи других пользователей: лента объявлений ---
   Item(
     id: 'i1',
@@ -29,7 +27,7 @@ final mockItems = [
     size: 'W32 L32',
     condition: 'Отличное',
     category: catalogCategories[1],
-    owner: mockUsers[1],
+    owner: fakeUsers[1],
     status: ItemStatus.available,
     createdAt: DateTime(2026, 9, 16),
   ),
@@ -42,7 +40,7 @@ final mockItems = [
     size: 'M',
     condition: 'Хорошее',
     category: catalogCategories[0],
-    owner: mockUsers[2],
+    owner: fakeUsers[2],
     status: ItemStatus.available,
     createdAt: DateTime(2026, 9, 15),
   ),
@@ -55,7 +53,7 @@ final mockItems = [
     size: 'S',
     condition: 'Отличное',
     category: catalogCategories[2],
-    owner: mockUsers[4],
+    owner: fakeUsers[4],
     status: ItemStatus.available,
     createdAt: DateTime(2026, 9, 14),
   ),
@@ -68,7 +66,7 @@ final mockItems = [
     size: '42',
     condition: 'Хорошее',
     category: catalogCategories[4],
-    owner: mockUsers[3],
+    owner: fakeUsers[3],
     status: ItemStatus.reserved,
     createdAt: DateTime(2026, 9, 12),
   ),
@@ -81,7 +79,7 @@ final mockItems = [
     size: 'L',
     condition: 'Отличное',
     category: catalogCategories[3],
-    owner: mockUsers[1],
+    owner: fakeUsers[1],
     status: ItemStatus.available,
     createdAt: DateTime(2026, 9, 11),
   ),
@@ -94,7 +92,7 @@ final mockItems = [
     size: 'S',
     condition: 'Новое с биркой',
     category: catalogCategories[0],
-    owner: mockUsers[4],
+    owner: fakeUsers[4],
     status: ItemStatus.available,
     createdAt: DateTime(2026, 9, 10),
   ),
@@ -107,7 +105,7 @@ final mockItems = [
     size: 'Без размера',
     condition: 'Хорошее',
     category: catalogCategories[5],
-    owner: mockUsers[2],
+    owner: fakeUsers[2],
     status: ItemStatus.sold,
     createdAt: DateTime(2026, 9, 9),
   ),
@@ -120,7 +118,7 @@ final mockItems = [
     size: 'M',
     condition: 'Хорошее',
     category: catalogCategories[3],
-    owner: mockUsers[3],
+    owner: fakeUsers[3],
     status: ItemStatus.available,
     createdAt: DateTime(2026, 9, 8),
   ),
@@ -133,7 +131,7 @@ final mockItems = [
     size: 'XS',
     condition: 'Удовлетворительное',
     category: catalogCategories[2],
-    owner: mockUsers[2],
+    owner: fakeUsers[2],
     status: ItemStatus.sold,
     createdAt: DateTime(2026, 9, 5),
   ),
@@ -146,7 +144,7 @@ final mockItems = [
     size: '38',
     condition: 'Хорошее',
     category: catalogCategories[4],
-    owner: mockUsers[1],
+    owner: fakeUsers[1],
     status: ItemStatus.reserved,
     createdAt: DateTime(2026, 9, 3),
   ),
@@ -161,7 +159,7 @@ final mockItems = [
     size: 'S',
     condition: 'Отличное',
     category: catalogCategories[0],
-    owner: mockUsers[0],
+    owner: fakeUsers[0],
     status: ItemStatus.available,
     createdAt: DateTime(2026, 9, 17),
   ),
@@ -174,7 +172,7 @@ final mockItems = [
     size: 'M',
     condition: 'Новое с биркой',
     category: catalogCategories[1],
-    owner: mockUsers[0],
+    owner: fakeUsers[0],
     status: ItemStatus.available,
     createdAt: DateTime(2026, 9, 13),
   ),
@@ -187,7 +185,7 @@ final mockItems = [
     size: 'S',
     condition: 'Хорошее',
     category: catalogCategories[3],
-    owner: mockUsers[0],
+    owner: fakeUsers[0],
     status: ItemStatus.reserved,
     createdAt: DateTime(2026, 9, 7),
   ),
@@ -200,7 +198,7 @@ final mockItems = [
     size: '38',
     condition: 'Хорошее',
     category: catalogCategories[4],
-    owner: mockUsers[0],
+    owner: fakeUsers[0],
     status: ItemStatus.sold,
     createdAt: DateTime(2026, 8, 30),
   ),
@@ -213,7 +211,7 @@ final mockItems = [
     size: 'XS',
     condition: 'Отличное',
     category: catalogCategories[2],
-    owner: mockUsers[0],
+    owner: fakeUsers[0],
     status: ItemStatus.available,
     createdAt: DateTime(2026, 8, 28),
   ),
@@ -226,24 +224,43 @@ final mockItems = [
     size: 'Без размера',
     condition: 'Отличное',
     category: catalogCategories[5],
-    owner: mockUsers[0],
+    owner: fakeUsers[0],
     status: ItemStatus.sold,
     createdAt: DateTime(2026, 8, 20),
   ),
 ];
 
-/// Брони текущего пользователя как покупателя: «Мои покупки».
-final mockReservations = [
-  Reservation('r1', 'i4', 'u1', ReservationStatus.pending,
-      DateTime(2026, 9, 17)),
-  Reservation('r2', 'i10', 'u1', ReservationStatus.confirmed,
-      DateTime(2026, 9, 15)),
-  Reservation('r3', 'i9', 'u1', ReservationStatus.completed,
-      DateTime(2026, 9, 6)),
-  Reservation('r4', 'i2', 'u1', ReservationStatus.cancelled,
-      DateTime(2026, 9, 4)),
-  Reservation('r5', 'i8', 'u1', ReservationStatus.cancelled,
-      DateTime(2026, 9, 2)),
-  Reservation('r6', 'i7', 'u1', ReservationStatus.completed,
-      DateTime(2026, 8, 25)),
+
+/// Брони текущего пользователя: как на сервере, вещь едет вместе с бронью.
+final fakeReservations = [
+  Reservation(
+      id: 'r1',
+      status: ReservationStatus.pending,
+      createdAt: DateTime(2026, 9, 17),
+      item: fakeItems[3]),
+  Reservation(
+      id: 'r2',
+      status: ReservationStatus.confirmed,
+      createdAt: DateTime(2026, 9, 15),
+      item: fakeItems[9]),
+  Reservation(
+      id: 'r3',
+      status: ReservationStatus.completed,
+      createdAt: DateTime(2026, 9, 6),
+      item: fakeItems[8]),
+  Reservation(
+      id: 'r4',
+      status: ReservationStatus.cancelled,
+      createdAt: DateTime(2026, 9, 4),
+      item: fakeItems[1]),
+  Reservation(
+      id: 'r5',
+      status: ReservationStatus.cancelled,
+      createdAt: DateTime(2026, 9, 2),
+      item: fakeItems[7]),
+  Reservation(
+      id: 'r6',
+      status: ReservationStatus.completed,
+      createdAt: DateTime(2026, 8, 25),
+      item: fakeItems[6]),
 ];

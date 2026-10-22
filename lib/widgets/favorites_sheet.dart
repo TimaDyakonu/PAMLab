@@ -1,4 +1,4 @@
-// widgets/favorites_sheet.dart — нижняя панель со списком избранного.
+// widgets/favorites_sheet.dart: нижняя панель со списком избранного.
 // Читает две модели: id избранного и сами вещи (у обеих свои состояния).
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -46,8 +46,8 @@ class FavoritesSheet extends StatelessWidget {
       );
     } else {
       final items = [
-        for (final item in model.items)
-          if (favorites.isFavorite(item.id)) item,
+        for (final id in favorites.ids)
+          if (model.byId(id) != null) model.byId(id)!,
       ];
       body = items.isEmpty
           ? const EmptyView(

@@ -3,10 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../data/item.dart';
 import '../data/reservation.dart';
-import '../data/user.dart';
 import '../models/favorites_model.dart';
 import '../models/items_model.dart';
 import '../models/reservations_model.dart';
+import '../models/session_model.dart';
 import '../widgets/confirm_dialog.dart';
 import '../widgets/error_view.dart';
 import '../widgets/item_action_bar.dart';
@@ -28,15 +28,13 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
   // Эфемерное состояние: «запрос летит» видит только этот экран, поэтому setState.
   bool _busy = false;
 
-  Future<void> _reserve(Item item, User buyer) async {
+  Future<void> _reserve(Item item) async {
     final reservations = context.read<ReservationsModel>();
-    final items = context.read<ItemsModel>();
     final messenger = ScaffoldMessenger.of(context);
     setState(() => _busy = true);
 
-    // На L5 обе записи сделает сервер одной транзакцией: POST /reservations.
-    var error = await reservations.reserve(item.id, buyer.id);
-    error ??= await items.update(item.copyWith(status: ItemStatus.reserved));
+    // Бронь и новый статус вещи сервер записывает одной транзакцией.
+    final error = await reservations.reserve(item);
 
     if (!mounted) return; // экран может умереть, пока запрос летит
     setState(() => _busy = false);
@@ -45,14 +43,12 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     );
   }
 
-  Future<void> _cancelReservation(Item item, Reservation reservation) async {
+  Future<void> _cancelReservation(Reservation reservation) async {
     final reservations = context.read<ReservationsModel>();
-    final items = context.read<ItemsModel>();
     final messenger = ScaffoldMessenger.of(context);
     setState(() => _busy = true);
 
-    var error = await reservations.cancel(reservation);
-    error ??= await items.update(item.copyWith(status: ItemStatus.available));
+    final error = await reservations.cancel(reservation);
 
     if (!mounted) return;
     setState(() => _busy = false);
@@ -102,7 +98,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     final text = Theme.of(context).textTheme;
 
     final model = context.watch<ItemsModel>(); // watch в build
-    final user = context.watch<User>();
+    final user = context.watch<SessionModel>().user;
     final reservations = context.watch<ReservationsModel>();
     final isFavorite =
         context.watch<FavoritesModel>().isFavorite(widget.itemId);
@@ -111,12 +107,15 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     if (item == null) {
       // у null два смысла: список ещё грузится, или такой вещи нет
       final Widget body;
-      if (model.isLoading) {
+      if (model.isLoading || model.isMineLoading) {
         body = const Center(child: CircularProgressIndicator());
-      } else if (model.error != null) {
+      } else if (model.error != null || model.mineError != null) {
         body = ErrorView(
-          message: model.error!,
-          onRetry: () => context.read<ItemsModel>().load(),
+          message: (model.error ?? model.mineError)!,
+          onRetry: () {
+            context.read<ItemsModel>().load();
+            context.read<ItemsModel>().loadMine();
+          },
         );
       } else {
         body = const Center(child: Text('Вещи не существует'));
@@ -148,7 +147,11 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
         children: [
           AspectRatio(
             aspectRatio: 4 / 3,
-            child: ItemPhoto(category: item.category, iconSize: 96),
+            child: ItemPhoto(
+              category: item.category,
+              imageUrl: item.imageUrl,
+              iconSize: 96,
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(16),
@@ -197,9 +200,9 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
         onMessage: () => ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Чат с продавцом откроется на L5')),
         ),
-        onReserve: () => _reserve(item, user),
+        onReserve: () => _reserve(item),
         onCancelReservation: () {
-          if (myReservation != null) _cancelReservation(item, myReservation);
+          if (myReservation != null) _cancelReservation(myReservation);
         },
       ),
     );

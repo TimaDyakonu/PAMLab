@@ -1,9 +1,12 @@
-// models/favorites_model.dart — разделяемое состояние: избранные вещи.
+// models/favorites_model.dart: разделяемое состояние: избранные вещи.
 // Читают три экрана (значок в ленте, карточка вещи, профиль), поэтому
 // состояние живёт в модели, а не в setState. Чистый Dart, без widget-ов.
 import 'package:flutter/foundation.dart';
 
 class FavoritesModel extends ChangeNotifier {
+  FavoritesModel({this.userId});
+
+  final String? userId; // избранное принадлежит одному пользователю
   final Set<String> _ids = {};
 
   Set<String> get ids => Set.unmodifiable(_ids);
