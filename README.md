@@ -19,7 +19,7 @@ P2P-маркетплейс секонд-хенда: платформа для о
 ## Модель данных
 
 - `Item(id, title, description, price, size, condition, category, imageUrl, owner, status, createdAt)`
-- `Reservation(id, itemId, buyerId, status, createdAt)`
+- `Reservation(id, status, createdAt, item)` (вещь приходит вместе с бронью)
 - `User(id, name, email, avatarUrl)`
 - `Category(id, name)`
 
@@ -32,39 +32,53 @@ lib/
 ├── screens/      # по одному файлу на экран
 ├── widgets/      # переиспользуемые компоненты
 ├── models/       # ChangeNotifier-модели разделяемого состояния (чистый Dart)
-└── data/         # сущности, Result, интерфейсы Repository, mock-реализации и seed
+└── data/         # сущности, Result, интерфейсы Repository, http-реализации, ApiClient
 ```
 
-## Архитектура данных (L4)
+## Архитектура данных (L4, L5)
 
 ```
 экраны ──watch / read──▶ модели ChangeNotifier ──Future<Result<T>>──▶ Repository (интерфейс)
                                                                             ▲ implements
-                                                                  MockItemRepository (L4)
-                                                                  вариант на http     (L5)
+                                                                  HttpItemRepository (L5, сервер)
+                                                                  HttpReservationRepository
 ```
 
 - Экраны и widget-ы не знают источника данных: `grep -rn "mock_data" lib/screens lib/widgets lib/models` пуст.
-- Источник выбирается в одном месте — `main()`; на L5 заменяется реализация repository и корень композиции.
-- Три состояния на каждом экране с данными: загрузка → данные → ошибка с кнопкой «Повторить».
-- Переключатель «Симулировать сбой сети» (профиль) включает аварию mock-а для демонстрации.
+- Источник выбирается в одном месте, `main()`: на L4 там стоял mock, на L5 стоят http-репозитории.
+- Три слоя отказа сети собраны в `data/api_client.dart`: упавшая дорога (бросает), дурная весть
+  сервера (читается из статуса и конверта), тело-сюрприз (падает при разборе) - всё в один `Err(msg)`.
+- Токен лежит в `shared_preferences` (`data/token_store.dart`), пароль не сохраняется никогда.
+  401 стирает токен и возвращает на экран входа.
+- Три состояния на каждом экране с данными: загрузка, данные, ошибка с кнопкой «Повторить».
 
 ## Запуск
 
-```bash
-flutter pub get
-flutter run
-```
-
-## Backend (L5)
-
-Сервер лежит в `server/`: язык Dart (Shelf + SQLite), шаблон курса PAM
-с расширением под сущности темы (вещи, брони). Запуск:
+Сначала сервер (в отдельном терминале), потом приложение:
 
 ```bash
 cd server && dart pub get && PORT=8765 dart run
+flutter pub get
+flutter run                                  # эмулятор Android: сервер на 10.0.2.2:8765
+flutter run --dart-define=API_BASE=http://192.168.0.10:8765   # телефон: IP ноутбука
 ```
 
-Порт 8080 из шаблона на этой машине занят другим сервисом, поэтому используется
-переменная `PORT`. Эмулятор Android обращается к серверу по адресу
-`http://10.0.2.2:8765`.
+Тестовые аккаунты (создаются при первом запуске сервера): `admin@secondhand.md` / `admin123`
+(6 своих вещей и 6 броней), продавцы `ion.rusu@gmail.com` и другие / `parola123`. Новый аккаунт
+можно создать кнопкой «Зарегистрируйтесь» на экране входа.
+
+## Backend (L5)
+
+Сервер лежит в `server/`: язык Dart (Shelf + SQLite), шаблон курса PAM с расширением под
+сущности темы (вещи `/items`, брони `/reservations`). `app.db` и `uploads/` создаются при
+первом запуске. Порт 8080 из шаблона на этой машине занят другим сервисом, поэтому порт
+задаётся переменной `PORT`.
+
+Проверка контракта (сервер должен быть запущен):
+
+```bash
+cd server && dart run tool/conformance.dart --base-url http://localhost:8765   # PASS - 45/45
+```
+
+Тесты приложения: `flutter test` (в том числе сквозной тест, который сам поднимает `server/`
+на порту 8791 и проверяет настоящий JSON).
