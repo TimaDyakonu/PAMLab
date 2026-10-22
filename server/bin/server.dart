@@ -13,12 +13,16 @@ import 'package:server/auth.dart';
 import 'package:server/db.dart';
 import 'package:server/errors.dart';
 import 'package:server/files.dart';
+import 'package:server/items.dart';
 import 'package:server/notes.dart';
+import 'package:server/reservations.dart';
+import 'package:server/seed.dart';
 
 Future<void> main() async {
   final port = int.tryParse(Platform.environment['PORT'] ?? '') ?? 8080;
 
   initDb('app.db'); // creates app.db + schema on first start
+  seedIfEmpty(); // demo users, items and reservations on first start
   initFileStorage('uploads'); // creates uploads/ on first start
 
   final router =
@@ -33,6 +37,15 @@ Future<void> main() async {
         ..get('/notes/<id>', requireAuth(getNote))
         ..put('/notes/<id>', requireAuth(updateNote))
         ..delete('/notes/<id>', requireAuth(deleteNote))
+        // The entities of the theme: items and their reservations.
+        ..get('/items', requireAuth(listItems))
+        ..post('/items', requireAuth(createItem))
+        ..get('/items/<id>', requireAuth(getItem))
+        ..put('/items/<id>', requireAuth(updateItem))
+        ..delete('/items/<id>', requireAuth(deleteItem))
+        ..get('/reservations', requireAuth(listReservations))
+        ..post('/reservations', requireAuth(createReservation))
+        ..put('/reservations/<id>', requireAuth(updateReservation))
         ..post('/files', requireAuth(uploadFile))
         ..get('/files/<id>', downloadFile);
 

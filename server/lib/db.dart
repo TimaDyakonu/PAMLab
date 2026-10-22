@@ -28,6 +28,28 @@ void initDb(String path) {
       created_at TEXT    NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS items (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id     INTEGER NOT NULL REFERENCES users (id),
+      title       TEXT    NOT NULL,
+      description TEXT    NOT NULL DEFAULT '',
+      price       REAL    NOT NULL,
+      size        TEXT    NOT NULL,
+      condition   TEXT    NOT NULL,
+      category_id TEXT    NOT NULL,
+      status      TEXT    NOT NULL DEFAULT 'available',
+      image_url   TEXT    NOT NULL DEFAULT '',
+      created_at  TEXT    NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS reservations (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      item_id    INTEGER NOT NULL REFERENCES items (id),
+      buyer_id   INTEGER NOT NULL REFERENCES users (id),
+      status     TEXT    NOT NULL DEFAULT 'pending',
+      created_at TEXT    NOT NULL
+    );
+
     CREATE TABLE IF NOT EXISTS files (
       id         INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id    INTEGER NOT NULL REFERENCES users (id),
@@ -38,6 +60,19 @@ void initDb(String path) {
       created_at TEXT    NOT NULL
     );
   ''');
+}
+
+/// Runs [action] in one transaction: all its writes happen, or none do.
+T inTransaction<T>(T Function() action) {
+  db.execute('BEGIN');
+  try {
+    final result = action();
+    db.execute('COMMIT');
+    return result;
+  } catch (_) {
+    db.execute('ROLLBACK');
+    rethrow;
+  }
 }
 
 /// Current UTC time in ISO-8601, the format used for all timestamps.
