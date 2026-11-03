@@ -22,8 +22,8 @@ Future<void> main() async {
   final port = int.tryParse(Platform.environment['PORT'] ?? '') ?? 8080;
 
   initDb('app.db'); // creates app.db + schema on first start
-  seedIfEmpty(); // demo users, items and reservations on first start
   initFileStorage('uploads'); // creates uploads/ on first start
+  seedIfEmpty(); // demo users, items, photos and reservations on first start
 
   final router =
       Router(notFoundHandler: (Request r) => notFound('Route not found'))

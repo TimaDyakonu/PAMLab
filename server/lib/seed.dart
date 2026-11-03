@@ -5,8 +5,11 @@
 // feed on purpose, so that pagination is visible at the default page size.
 // The passwords are laboratory data (never do this outside a lab).
 
+import 'dart:io';
+
 import 'auth.dart';
 import 'db.dart';
+import 'files.dart';
 
 const _users = [
   ('admin@secondhand.md', 'Admin', 'admin123'),
@@ -67,8 +70,34 @@ void seedIfEmpty() {
   inTransaction(() {
     _seedUsers();
     _seedItems();
+    _seedPhotos();
     _seedReservations();
   });
+}
+
+/// Item photos of the demo data: seed/photos/01.jpg ... 28.jpg, numbered in the
+/// order of [_items]. Each one is stored like a normal upload (a row in files
+/// plus a copy in uploads/), and the item points to it with /files/{id}.
+/// Needs initFileStorage() to have run; a missing photo is simply skipped.
+void _seedPhotos() {
+  for (var i = 1; i <= _items.length; i++) {
+    final name = '${i.toString().padLeft(2, '0')}.jpg';
+    final source = File('seed/photos/$name');
+    if (!source.existsSync()) continue;
+
+    final owner = _items[i - 1].$1;
+    final stored = File('${uploadsDir.path}/seed_$name');
+    source.copySync(stored.path);
+    db.execute(
+      'INSERT INTO files (user_id, name, mime_type, size, path, created_at) '
+      'VALUES (?, ?, ?, ?, ?, ?)',
+      [owner, name, 'image/jpeg', stored.lengthSync(), stored.path, nowIso()],
+    );
+    db.execute(
+      'UPDATE items SET image_url = ? WHERE id = ?',
+      ['/files/${db.lastInsertRowId}', i],
+    );
+  }
 }
 
 void _seedUsers() {

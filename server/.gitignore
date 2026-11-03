@@ -5,3 +5,6 @@
 app.db
 app.db-*
 uploads/
+
+# Original generated photos (the seed uses the optimized copies in seed/photos/)
+seed-photos/
